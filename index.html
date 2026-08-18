@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eventograma 2026</title>
+    <title>Eventograma</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         :root {
             --cor-fundo: #f4f7f6;
             --cor-card: #ffffff;
             --cor-texto: #333333;
             --cor-titulo: #2c3e50;
             --cor-evento: #3498db;
-            --cor-evento-hover: #2980b9;
+            --cor-evento-texto: #ffffff;
+            --cor-hoje-borda: #e74c3c;
+            --cor-hoje-fundo: #fadbd8;
         }
 
         body {
@@ -19,123 +25,191 @@
             background-color: var(--cor-fundo);
             color: var(--cor-texto);
             margin: 0;
-            padding: 20px;
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
         }
 
         h1 {
-            text-align: center;
             color: var(--cor-titulo);
-            margin-bottom: 30px;
+            margin: 5px 0 15px 0;
+            font-size: 1.8em;
         }
 
+        .controles {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .controles button {
+            background-color: transparent;
+            border: none;
+            font-size: 26px;
+            color: var(--cor-titulo);
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .controles button:hover {
+            background-color: #e2e6e9;
+        }
+
+        #mes-titulo {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--cor-titulo);
+            text-transform: capitalize;
+            min-width: 220px;
+            text-align: center;
+            margin: 0;
+        }
+
+        /* Correção: Forçando o eventograma a sempre ocupar a largura total permitida */
         #eventograma {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 1000px;
         }
 
         .mes {
             background: var(--cor-card);
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .mes h3 {
-            text-align: center;
-            margin-top: 0;
-            color: var(--cor-titulo);
-            text-transform: capitalize;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            width: 100%;
         }
 
         .grid-dias {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
+            gap: 6px;
         }
 
         .dia-semana {
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 1em;
             color: #7f8c8d;
+            text-align: center;
             margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #ecf0f1;
         }
 
         .dia {
-            padding: 8px 0;
-            border-radius: 4px;
-            font-size: 0.9em;
+            border-radius: 6px;
             background-color: #f9f9f9;
-            color: #555;
+            border: 1px solid #eaeaea;
+            height: 85px; 
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+            transition: background-color 0.2s;
+            overflow-y: auto;
         }
 
-        .dia.com-evento {
-            background-color: var(--cor-evento);
-            color: #fff;
+        /* Correção: Dias vazios agora possuem um contorno suave para manter a estrutura visual perfeita */
+        .dia.vazio {
+            background-color: #fdfdfd;
+            border: 1px solid #f0f0f0;
+            pointer-events: none;
+        }
+
+        .dia::-webkit-scrollbar { width: 4px; }
+        .dia::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+        .dia:not(.vazio):hover {
+            background-color: #f1f2f6;
+        }
+
+        .numero-dia {
+            align-self: flex-end;
+            font-size: 1em;
             font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 4px;
+        }
+
+        .dia.hoje {
+            background-color: var(--cor-hoje-fundo);
+            border: 2px solid var(--cor-hoje-borda);
+        }
+
+        .dia.hoje .numero-dia {
+            color: var(--cor-hoje-borda);
+        }
+
+        .tag-evento {
+            background-color: var(--cor-evento);
+            color: var(--cor-evento-texto);
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+
+        .btn-hoje {
+            margin-top: 15px;
+            background-color: var(--cor-titulo);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
             transition: background-color 0.2s;
         }
 
-        .dia.com-evento:hover {
-            background-color: var(--cor-evento-hover);
-        }
-
-        .dia.com-evento[title]:hover::after {
-            content: attr(title);
-            position: absolute;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 10;
+        .btn-hoje:hover {
+            background-color: #1a252f;
         }
     </style>
 </head>
 <body>
 
-    <h1>📅 Eventograma 2026</h1>
+    <h1>📅 Eventograma</h1>
+
+    <div class="controles">
+        <button onclick="mudarMes(-1)">&#10094;</button>
+        <h2 id="mes-titulo">Mês Ano</h2>
+        <button onclick="mudarMes(1)">&#10095;</button>
+    </div>
+
     <div id="eventograma"></div>
 
-    <script>
-        const anoCalendario = 2026;
+    <button class="btn-hoje" onclick="irParaHoje()">Voltar para o Mês Atual</button>
 
+    <script>
         // ====================================================================
         // 1. ESCREVA SEUS EVENTOS AQUI ABAIXO (ENTRE AS CRAZES ` `)
-        // Você pode escrever exatamente como fala. O sistema entende os formatos:
-        // - "27 de agosto de 2026 - Nome"
-        // - "20 a 22 de agosto de 2026 - Nome"
-        // - "25/12 - Natal"
         // ====================================================================
         const listaDeTexto = `
         
         27 de agosto de 2026 - Dia da Mopa
         20 a 22 de agosto de 2026 - Semana da Mopa
         12 a 16 de outubro - Semana Interna de Treinamento
-        25/12/2026 - Natal
-        10/09/2026 - Reuniao DGF
+        25/12 - Natal
 
         `;
         // ====================================================================
 
+        const dataAtualReal = new Date();
+        let dataVisualizacao = new Date();
 
-
-        // ==========================================
-        // 2. LÓGICA DE TRADUÇÃO DO TEXTO E CALENDÁRIO
-        // ==========================================
-        
-        // Função que lê o seu texto e converte para dados lógicos
         function interpretarEventos(texto) {
             const eventosProcessados = [];
             const linhas = texto.split('\n');
+            const anoPadrao = dataAtualReal.getFullYear();
             
             const mesesMap = {
                 'janeiro': '01', 'fevereiro': '02', 'março': '03', 'marco': '03',
@@ -145,9 +219,8 @@
 
             linhas.forEach(linha => {
                 linha = linha.trim();
-                if(!linha) return; // Ignora linhas em branco
+                if(!linha) return;
 
-                // 1º Formato (Por extenso): "20 a 22 de agosto de 2026 - Evento"
                 const regExt = /^(\d{1,2})(?:\s+a\s+(\d{1,2}))?\s+de\s+([a-zA-ZçÇ]+)(?:\s+de\s+(\d{4}))?\s*-\s*(.+)$/i;
                 const matchExt = linha.match(regExt);
 
@@ -155,7 +228,7 @@
                     let diaIn = matchExt[1].padStart(2, '0');
                     let diaFim = matchExt[2] ? matchExt[2].padStart(2, '0') : null;
                     let mesNum = mesesMap[matchExt[3].toLowerCase()];
-                    let ano = matchExt[4] || anoCalendario;
+                    let ano = matchExt[4] || anoPadrao;
                     let nome = matchExt[5].trim();
 
                     if(mesNum) {
@@ -168,14 +241,13 @@
                     }
                 }
 
-                // 2º Formato (Curto numérico): "20/08 a 22/08/2026 - Evento"
                 const regCurto = /^(\d{2}\/\d{2}(?:\/\d{4})?)(?:\s+a\s+(\d{2}\/\d{2}(?:\/\d{4})?))?\s*-\s*(.+)$/i;
                 const matchCurto = linha.match(regCurto);
 
                 if(matchCurto) {
                     const converte = (dStr) => {
                         let p = dStr.split('/');
-                        return `${p[2] || anoCalendario}-${p[1]}-${p[0]}`;
+                        return `${p[2] || anoPadrao}-${p[1]}-${p[0]}`;
                     }
                     let inicio = converte(matchCurto[1]);
                     let diaFim = matchCurto[2];
@@ -192,56 +264,79 @@
         }
 
         const eventos = interpretarEventos(listaDeTexto);
-        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]; 
 
-        function renderizarCalendario(ano) {
+        function renderizarMes() {
+            const ano = dataVisualizacao.getFullYear();
+            const mes = dataVisualizacao.getMonth();
+
+            document.getElementById('mes-titulo').innerText = `${mesesNomes[mes]} ${ano}`;
+
             const container = document.getElementById('eventograma');
             container.innerHTML = '';
 
-            for (let mes = 0; mes < 12; mes++) {
-                const mesDiv = document.createElement('div');
-                mesDiv.className = 'mes';
+            const mesDiv = document.createElement('div');
+            mesDiv.className = 'mes';
 
-                const titulo = document.createElement('h3');
-                titulo.innerText = meses[mes];
-                mesDiv.appendChild(titulo);
+            const grid = document.createElement('div');
+            grid.className = 'grid-dias';
 
-                const grid = document.createElement('div');
-                grid.className = 'grid-dias';
+            diasSemana.forEach(d => {
+                const header = document.createElement('div');
+                header.className = 'dia-semana';
+                header.innerText = d;
+                grid.appendChild(header);
+            });
 
-                diasSemana.forEach(d => {
-                    const header = document.createElement('div');
-                    header.className = 'dia-semana';
-                    header.innerText = d;
-                    grid.appendChild(header);
+            const primeiroDia = new Date(ano, mes, 1).getDay();
+            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+            
+            let celulasDesenhadas = 0;
+
+            for (let i = 0; i < primeiroDia; i++) {
+                const vazio = document.createElement('div');
+                vazio.className = 'dia vazio';
+                grid.appendChild(vazio);
+                celulasDesenhadas++;
+            }
+
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+                const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                
+                const diaDiv = document.createElement('div');
+                diaDiv.className = 'dia';
+                
+                const numDiv = document.createElement('div');
+                numDiv.className = 'numero-dia';
+                numDiv.innerText = dia;
+                diaDiv.appendChild(numDiv);
+
+                if (ano === dataAtualReal.getFullYear() && mes === dataAtualReal.getMonth() && dia === dataAtualReal.getDate()) {
+                    diaDiv.classList.add('hoje');
+                }
+
+                const eventosDoDia = buscarEventos(dataStr);
+                eventosDoDia.forEach(nomeEvento => {
+                    const tagEvento = document.createElement('div');
+                    tagEvento.className = 'tag-evento';
+                    tagEvento.innerText = nomeEvento;
+                    diaDiv.appendChild(tagEvento);
                 });
 
-                const primeiroDia = new Date(ano, mes, 1).getDay();
-                const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-
-                for (let i = 0; i < primeiroDia; i++) {
-                    grid.appendChild(document.createElement('div'));
-                }
-
-                for (let dia = 1; dia <= diasNoMes; dia++) {
-                    const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-                    const diaDiv = document.createElement('div');
-                    diaDiv.className = 'dia';
-                    diaDiv.innerText = dia;
-
-                    const eventosDoDia = buscarEventos(dataStr);
-                    
-                    if (eventosDoDia.length > 0) {
-                        diaDiv.classList.add('com-evento');
-                        diaDiv.title = eventosDoDia.join(' | '); 
-                    }
-
-                    grid.appendChild(diaDiv);
-                }
-                mesDiv.appendChild(grid);
-                container.appendChild(mesDiv);
+                grid.appendChild(diaDiv);
+                celulasDesenhadas++;
             }
+
+            while (celulasDesenhadas < 42) {
+                const vazio = document.createElement('div');
+                vazio.className = 'dia vazio';
+                grid.appendChild(vazio);
+                celulasDesenhadas++;
+            }
+
+            mesDiv.appendChild(grid);
+            container.appendChild(mesDiv);
         }
 
         function buscarEventos(dataBase) {
@@ -258,7 +353,18 @@
             return nomes;
         }
 
-        renderizarCalendario(anoCalendario);
+        function mudarMes(direcao) {
+            dataVisualizacao.setMonth(dataVisualizacao.getMonth() + direcao);
+            renderizarMes();
+        }
+
+        function irParaHoje() {
+            dataVisualizacao = new Date();
+            renderizarMes();
+        }
+
+        renderizarMes();
+
     </script>
 </body>
 </html>
