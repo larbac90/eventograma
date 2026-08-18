@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventograma 2026</title>
+    <style>
+        :root {
+            --cor-fundo: #f4f7f6;
+            --cor-card: #ffffff;
+            --cor-texto: #333333;
+            --cor-titulo: #2c3e50;
+            --cor-evento: #3498db;
+            --cor-evento-hover: #2980b9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--cor-titulo);
+            margin-bottom: 30px;
+        }
+
+        #eventograma {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mes {
+            background: var(--cor-card);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .mes h3 {
+            text-align: center;
+            margin-top: 0;
+            color: var(--cor-titulo);
+            text-transform: capitalize;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .grid-dias {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .dia-semana {
+            font-weight: bold;
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .dia {
+            padding: 8px 0;
+            border-radius: 4px;
+            font-size: 0.9em;
+            background-color: #f9f9f9;
+            color: #555;
+        }
+
+        .dia.com-evento {
+            background-color: var(--cor-evento);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dia.com-evento:hover {
+            background-color: var(--cor-evento-hover);
+        }
+
+        .dia.com-evento[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📅 Eventograma 2026</h1>
+    <div id="eventograma"></div>
+
+    <script>
+        const anoCalendario = 2026;
+
+        // ====================================================================
+        // 1. ESCREVA SEUS EVENTOS AQUI ABAIXO (ENTRE AS CRAZES ` `)
+        // Você pode escrever exatamente como fala. O sistema entende os formatos:
+        // - "27 de agosto de 2026 - Nome"
+        // - "20 a 22 de agosto de 2026 - Nome"
+        // - "25/12 - Natal"
+        // ====================================================================
+        const listaDeTexto = `
+        
+        27 de agosto de 2026 - Dia da Mopa
+        20 a 22 de agosto de 2026 - Semana da Mopa
+        12 a 16 de outubro - Semana Interna de Treinamento
+        25/12/2026 - Natal
+        01/07/2026 a 01/08/2026 - férias
+
+        `;
+        // ====================================================================
+
+
+
+        // ==========================================
+        // 2. LÓGICA DE TRADUÇÃO DO TEXTO E CALENDÁRIO
+        // ==========================================
+        
+        // Função que lê o seu texto e converte para dados lógicos
+        function interpretarEventos(texto) {
+            const eventosProcessados = [];
+            const linhas = texto.split('\n');
+            
+            const mesesMap = {
+                'janeiro': '01', 'fevereiro': '02', 'março': '03', 'marco': '03',
+                'abril': '04', 'maio': '05', 'junho': '06', 'julho': '07',
+                'agosto': '08', 'setembro': '09', 'outubro': '10', 'novembro': '11', 'dezembro': '12'
+            };
+
+            linhas.forEach(linha => {
+                linha = linha.trim();
+                if(!linha) return; // Ignora linhas em branco
+
+                // 1º Formato (Por extenso): "20 a 22 de agosto de 2026 - Evento"
+                const regExt = /^(\d{1,2})(?:\s+a\s+(\d{1,2}))?\s+de\s+([a-zA-ZçÇ]+)(?:\s+de\s+(\d{4}))?\s*-\s*(.+)$/i;
+                const matchExt = linha.match(regExt);
+
+                if(matchExt) {
+                    let diaIn = matchExt[1].padStart(2, '0');
+                    let diaFim = matchExt[2] ? matchExt[2].padStart(2, '0') : null;
+                    let mesNum = mesesMap[matchExt[3].toLowerCase()];
+                    let ano = matchExt[4] || anoCalendario;
+                    let nome = matchExt[5].trim();
+
+                    if(mesNum) {
+                        if(diaFim) {
+                            eventosProcessados.push({ inicio: `${ano}-${mesNum}-${diaIn}`, fim: `${ano}-${mesNum}-${diaFim}`, nome });
+                        } else {
+                            eventosProcessados.push({ data: `${ano}-${mesNum}-${diaIn}`, nome });
+                        }
+                        return;
+                    }
+                }
+
+                // 2º Formato (Curto numérico): "20/08 a 22/08/2026 - Evento"
+                const regCurto = /^(\d{2}\/\d{2}(?:\/\d{4})?)(?:\s+a\s+(\d{2}\/\d{2}(?:\/\d{4})?))?\s*-\s*(.+)$/i;
+                const matchCurto = linha.match(regCurto);
+
+                if(matchCurto) {
+                    const converte = (dStr) => {
+                        let p = dStr.split('/');
+                        return `${p[2] || anoCalendario}-${p[1]}-${p[0]}`;
+                    }
+                    let inicio = converte(matchCurto[1]);
+                    let diaFim = matchCurto[2];
+                    let nome = matchCurto[3].trim();
+
+                    if(diaFim) {
+                        eventosProcessados.push({ inicio: inicio, fim: converte(diaFim), nome });
+                    } else {
+                        eventosProcessados.push({ data: inicio, nome });
+                    }
+                }
+            });
+            return eventosProcessados;
+        }
+
+        const eventos = interpretarEventos(listaDeTexto);
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+        function renderizarCalendario(ano) {
+            const container = document.getElementById('eventograma');
+            container.innerHTML = '';
+
+            for (let mes = 0; mes < 12; mes++) {
+                const mesDiv = document.createElement('div');
+                mesDiv.className = 'mes';
+
+                const titulo = document.createElement('h3');
+                titulo.innerText = meses[mes];
+                mesDiv.appendChild(titulo);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid-dias';
+
+                diasSemana.forEach(d => {
+                    const header = document.createElement('div');
+                    header.className = 'dia-semana';
+                    header.innerText = d;
+                    grid.appendChild(header);
+                });
+
+                const primeiroDia = new Date(ano, mes, 1).getDay();
+                const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+                for (let i = 0; i < primeiroDia; i++) {
+                    grid.appendChild(document.createElement('div'));
+                }
+
+                for (let dia = 1; dia <= diasNoMes; dia++) {
+                    const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                    const diaDiv = document.createElement('div');
+                    diaDiv.className = 'dia';
+                    diaDiv.innerText = dia;
+
+                    const eventosDoDia = buscarEventos(dataStr);
+                    
+                    if (eventosDoDia.length > 0) {
+                        diaDiv.classList.add('com-evento');
+                        diaDiv.title = eventosDoDia.join(' | '); 
+                    }
+
+                    grid.appendChild(diaDiv);
+                }
+                mesDiv.appendChild(grid);
+                container.appendChild(mesDiv);
+            }
+        }
+
+        function buscarEventos(dataBase) {
+            let nomes = [];
+            eventos.forEach(ev => {
+                if (ev.data === dataBase) {
+                    nomes.push(ev.nome);
+                } else if (ev.inicio && ev.fim) {
+                    if (dataBase >= ev.inicio && dataBase <= ev.fim) {
+                        nomes.push(ev.nome);
+                    }
+                }
+            });
+            return nomes;
+        }
+
+        renderizarCalendario(anoCalendario);
+    </script>
+</body>
+</html>
