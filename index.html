@@ -10,7 +10,6 @@
         }
 
         :root {
-            --cor-fundo: #f4f7f6;
             --cor-card: #ffffff;
             --cor-texto: #333333;
             --cor-titulo: #2c3e50;
@@ -20,22 +19,18 @@
             --cor-hoje-fundo: #fadbd8;
         }
 
+        /* AJUSTE PRINCIPAL: O body agora é transparente e se ajusta ao conteúdo */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--cor-fundo);
+            background-color: transparent; /* Fundo transparente */
             color: var(--cor-texto);
             margin: 0;
-            padding: 10px 20px;
+            padding: 10px; /* Padding reduzido */
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
-        }
-
-        h1 {
-            color: var(--cor-titulo);
-            margin: 5px 0 15px 0;
-            font-size: 1.8em;
+            width: 100%;
+            /* Removido o height: 100vh para não forçar tamanho de página inteira */
         }
 
         .controles {
@@ -64,16 +59,15 @@
         }
 
         #mes-titulo {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: bold;
             color: var(--cor-titulo);
             text-transform: capitalize;
-            min-width: 220px;
+            min-width: 200px;
             text-align: center;
             margin: 0;
         }
 
-        /* Correção: Forçando o eventograma a sempre ocupar a largura total permitida */
         #eventograma {
             width: 100%;
             max-width: 1000px;
@@ -83,7 +77,7 @@
             background: var(--cor-card);
             padding: 15px;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* Sombra suave para destacar no site principal */
             width: 100%;
         }
 
@@ -95,7 +89,7 @@
 
         .dia-semana {
             font-weight: bold;
-            font-size: 1em;
+            font-size: 0.9em;
             color: #7f8c8d;
             text-align: center;
             margin-bottom: 5px;
@@ -115,10 +109,9 @@
             overflow-y: auto;
         }
 
-        /* Correção: Dias vazios agora possuem um contorno suave para manter a estrutura visual perfeita */
         .dia.vazio {
-            background-color: #fdfdfd;
-            border: 1px solid #f0f0f0;
+            background-color: transparent; /* Deixa dias vazios invisíveis/limpos */
+            border: 1px solid transparent;
             pointer-events: none;
         }
 
@@ -131,7 +124,7 @@
 
         .numero-dia {
             align-self: flex-end;
-            font-size: 1em;
+            font-size: 0.9em;
             font-weight: bold;
             color: #7f8c8d;
             margin-bottom: 4px;
@@ -149,7 +142,7 @@
         .tag-evento {
             background-color: var(--cor-evento);
             color: var(--cor-evento-texto);
-            font-size: 0.75em;
+            font-size: 0.7em;
             font-weight: 500;
             padding: 3px 6px;
             border-radius: 4px;
@@ -163,10 +156,10 @@
             background-color: var(--cor-titulo);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: background-color 0.2s;
         }
 
@@ -177,7 +170,7 @@
 </head>
 <body>
 
-    <h1>📅 Eventograma</h1>
+    <!-- O <h1> foi removido para deixar o componente mais limpo -->
 
     <div class="controles">
         <button onclick="mudarMes(-1)">&#10094;</button>
@@ -191,7 +184,7 @@
 
     <script>
         // ====================================================================
-        // 1. ESCREVA SEUS EVENTOS AQUI ABAIXO (ENTRE AS CRAZES ` `)
+        // 1. ESCREVA SEUS EVENTOS AQUI ABAIXO
         // ====================================================================
         const listaDeTexto = `
         
